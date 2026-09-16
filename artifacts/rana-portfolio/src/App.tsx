@@ -146,10 +146,6 @@ function Home() {
     <main className="site-shell">
       <div className="topline" />
       <header className="nav" data-testid="navigation-header">
-        <a className="monogram" href="#top" data-testid="link-home">
-          <span className="monogram-mark" aria-hidden="true">RA</span>
-          <span>Rana Abhay</span>
-        </a>
         <nav className="nav-links" aria-label="Primary navigation">
           {navItems.map((item) => (
             <a

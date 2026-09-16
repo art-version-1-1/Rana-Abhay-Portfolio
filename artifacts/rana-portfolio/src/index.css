@@ -186,9 +186,12 @@ button {
 }
 
 .nav-links {
+  position: absolute;
+  left: 50%;
   display: flex;
   align-items: center;
   gap: clamp(16px, 3vw, 42px);
+  transform: translateX(-50%);
 }
 
 .nav-link,
@@ -824,13 +827,8 @@ button {
     gap: 9px;
   }
 
-  .monogram span:last-child,
   .nav-status {
     margin-left: auto;
-  }
-
-  .monogram span:last-child {
-    display: none;
   }
 
   .nav-status {
