@@ -1,4 +1,7 @@
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+
+const TRAIL_COUNT = 6;
+const TRAIL_INTERVAL = 40;
 import { ArrowUpRight, Check, Copy, Github, Linkedin, Mail, MoveUpRight } from 'lucide-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useRecordVisit } from '@workspace/api-client-react';
@@ -97,13 +100,18 @@ function Home() {
   const [activeSection, setActiveSection] = useState('about');
   const [copied, setCopied] = useState(false);
   const [visitCount, setVisitCount] = useState<number | null>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const trailRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const positionsRef = useRef<{ x: number; y: number; t: number }[]>([]);
+  const rafRef = useRef(0);
   const recordVisit = useRecordVisit();
 
   useEffect(() => {
     recordVisit.mutate(undefined, {
       onSuccess: (data) => setVisitCount(data.totalVisits),
+      onError: () => setVisitCount(0),
     });
-  }, []);
+  }, [recordVisit]);
 
   useEffect(() => {
     const sections = navItems
@@ -141,6 +149,91 @@ function Home() {
     return () => observer.disconnect();
   }, []);
 
+  // Animation loop for trail glow
+  useEffect(() => {
+    const animate = (now: number) => {
+      const hero = heroRef.current;
+      if (!hero) { rafRef.current = requestAnimationFrame(animate); return; }
+      const rect = hero.getBoundingClientRect();
+      const positions = positionsRef.current;
+
+      // Prune old positions (> 350ms)
+      while (positions.length > 0 && now - positions[0].t > 350) positions.shift();
+
+      // Update main glow
+      if (positions.length > 0) {
+        const p = positions[positions.length - 1];
+        hero.style.setProperty('--glow-x', `${((p.x - rect.left) / rect.width) * 100}%`);
+        hero.style.setProperty('--glow-y', `${((p.y - rect.top) / rect.height) * 100}%`);
+      } else {
+        hero.style.setProperty('--glow-x', '50%');
+        hero.style.setProperty('--glow-y', '50%');
+      }
+
+      // Update trail dots
+      for (let i = 0; i < TRAIL_COUNT; i++) {
+        const el = trailRefs.current[i];
+        if (!el) continue;
+        const idx = positions.length - 1 - (i + 1) * 2;
+        if (idx < 0) { el.style.opacity = '0'; continue; }
+        const p = positions[idx];
+        const age = (now - p.t) / 350;
+        el.style.opacity = `${Math.max(0, (1 - age) * 0.45)}`;
+        el.style.setProperty('--trail-x', `${((p.x - rect.left) / rect.width) * 100}%`);
+        el.style.setProperty('--trail-y', `${((p.y - rect.top) / rect.height) * 100}%`);
+      }
+
+      rafRef.current = requestAnimationFrame(animate);
+    };
+    rafRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
+
+  const handleHeroMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    const now = performance.now();
+    const pos = positionsRef.current;
+    const last = pos[pos.length - 1];
+    if (last && now - last.t < TRAIL_INTERVAL) return;
+    pos.push({ x: e.clientX, y: e.clientY, t: now });
+    if (pos.length > TRAIL_COUNT * 4) pos.splice(0, pos.length - TRAIL_COUNT * 4);
+  }, []);
+
+  // Magnetic hover for project cards
+  const handleCardMouseMove = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const offsetX = (e.clientX - centerX) / (rect.width / 2);
+    const offsetY = (e.clientY - centerY) / (rect.height / 2);
+    card.style.transform = `translateX(10px) translate(${offsetX * 6}px, ${offsetY * 4}px)`;
+  }, []);
+
+  const handleCardMouseLeave = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.currentTarget.style.transform = '';
+  }, []);
+
+  // Typewriter effect
+  const typewriterText = 'AI engineer / web developer';
+  const [typedText, setTypedText] = useState('');
+  const [showCursor, setShowCursor] = useState(true);
+
+  useEffect(() => {
+    let i = 0;
+    const timer = setTimeout(() => {
+      const interval = setInterval(() => {
+        i++;
+        setTypedText(typewriterText.slice(0, i));
+        if (i >= typewriterText.length) {
+          clearInterval(interval);
+          setTimeout(() => setShowCursor(false), 1200);
+        }
+      }, 55);
+      return () => clearInterval(interval);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const copyEmail = async () => {
     try {
       await navigator.clipboard.writeText('rana.abhay1@outlook.com');
@@ -176,12 +269,21 @@ function Home() {
         </div>
       </header>
 
-      <section className="hero" id="top" aria-labelledby="hero-title">
+      <section ref={heroRef} className="hero" id="top" aria-labelledby="hero-title" onMouseMove={handleHeroMouseMove}>
+        <div className="hero-glow" aria-hidden="true" />
+        {Array.from({ length: TRAIL_COUNT }, (_, i) => (
+          <div
+            key={i}
+            className="hero-trail"
+            aria-hidden="true"
+            ref={(el) => { trailRefs.current[i] = el; }}
+          />
+        ))}
         <div className="hero-grid" aria-hidden="true" />
         <div className="hero-copy">
           <div className="eyebrow">
             <span className="eyebrow-line" />
-            AI engineer / web developer
+            <span>{typedText}{showCursor && <span className="typewriter-cursor">|</span>}</span>
           </div>
           <h1 className="hero-title" id="hero-title">
             RANA
@@ -254,6 +356,8 @@ function Home() {
               aria-label={`${project.title}${project.href.startsWith('http') ? ' repository on GitHub' : ''}`}
               key={project.id}
               data-testid={`link-project-${project.id}`}
+              onMouseMove={handleCardMouseMove}
+              onMouseLeave={handleCardMouseLeave}
             >
               <span className="project-number">{project.number}</span>
               <div>

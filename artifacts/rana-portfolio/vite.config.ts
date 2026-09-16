@@ -4,28 +4,17 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
+import {
+  DEFAULT_API_PORT,
+  DEFAULT_BASE_PATH,
+  DEFAULT_PORT,
+  resolveBasePath,
+  resolvePort,
+} from './src/lib/runtime-config';
 
-const rawPort = process.env.PORT;
-
-if (!rawPort) {
-  throw new Error(
-    'PORT environment variable is required but was not provided.',
-  );
-}
-
-const port = Number(rawPort);
-
-if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
-}
-
-const basePath = process.env.BASE_PATH;
-
-if (!basePath) {
-  throw new Error(
-    'BASE_PATH environment variable is required but was not provided.',
-  );
-}
+const port = resolvePort(process.env.PORT, DEFAULT_PORT);
+const basePath = resolveBasePath(process.env.BASE_PATH ?? DEFAULT_BASE_PATH);
+const apiTarget = `http://localhost:${process.env.API_PORT ?? DEFAULT_API_PORT}`;
 
 export default defineConfig({
   base: basePath,
@@ -69,6 +58,13 @@ export default defineConfig({
     strictPort: true,
     host: '0.0.0.0',
     allowedHosts: true,
+    proxy: {
+      '/api': {
+        target: apiTarget,
+        changeOrigin: true,
+        secure: false,
+      },
+    },
     fs: {
       strict: true,
     },
