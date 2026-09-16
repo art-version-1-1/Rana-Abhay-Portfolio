@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: visits
+    description: Portfolio visitor count operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /visits:
+    post:
+      operationId: recordVisit
+      tags: [visits]
+      summary: Record a portfolio visit
+      description: Increments the aggregate portfolio visitor count and returns the latest total.
+      responses:
+        "200":
+          description: Updated visitor count
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisitCount"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +48,12 @@ components:
           type: string
       required:
         - status
+    VisitCount:
+      type: object
+      properties:
+        totalVisits:
+          type: integer
+          minimum: 0
+      required:
+        - totalVisits
 

@@ -244,6 +244,10 @@ button {
   font-size: .6rem;
 }
 
+.nav-visits {
+  color: #c7c7c7;
+}
+
 .status-dot {
   width: 6px;
   height: 6px;
@@ -833,6 +837,13 @@ button {
   }
 
   .nav-status {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+    font-size: .5rem;
+  }
+
+  .nav-location {
     display: none;
   }
 

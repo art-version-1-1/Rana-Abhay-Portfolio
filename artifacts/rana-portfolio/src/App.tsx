@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect, useState } from 'react';
 import { ArrowUpRight, Check, Copy, Github, Linkedin, Mail, MoveUpRight } from 'lucide-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useRecordVisit } from '@workspace/api-client-react';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -95,6 +96,14 @@ const navItems = [
 function Home() {
   const [activeSection, setActiveSection] = useState('about');
   const [copied, setCopied] = useState(false);
+  const [visitCount, setVisitCount] = useState<number | null>(null);
+  const recordVisit = useRecordVisit();
+
+  useEffect(() => {
+    recordVisit.mutate(undefined, {
+      onSuccess: (data) => setVisitCount(data.totalVisits),
+    });
+  }, []);
 
   useEffect(() => {
     const sections = navItems
@@ -160,7 +169,10 @@ function Home() {
         </nav>
         <div className="nav-status" data-testid="status-availability">
           <span className="status-dot" aria-hidden="true" />
-          New Delhi / IST
+          <span className="nav-location">New Delhi / IST</span>
+          <span className="nav-visits" aria-live="polite">
+            {visitCount === null ? 'Visits / —' : `Visits / ${visitCount}`}
+          </span>
         </div>
       </header>
 

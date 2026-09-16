@@ -5,12 +5,8 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-export interface HealthStatus {
-  status: string;
-}
 
 export interface VisitCount {
   /** @minimum 0 */
   totalVisits: number;
 }
-
