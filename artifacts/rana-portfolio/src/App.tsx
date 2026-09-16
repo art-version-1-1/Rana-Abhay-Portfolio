@@ -39,7 +39,7 @@ const projects: Project[] = [
     type: 'Institutional web platform',
     description: 'A modern, responsive official college website that makes a large amount of information feel easy to navigate.',
     stack: ['HTML5', 'CSS3', 'JavaScript'],
-    href: '#contact',
+    href: 'https://github.com/MohitManola/gnit-homePage',
     live: false,
   },
   {
