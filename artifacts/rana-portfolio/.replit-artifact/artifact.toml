@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Rana Abhay Portfolio"
+description = "A modern monochrome portfolio for Rana Abhay Kumar, an AI Engineer and Web Developer, showcasing interactive web experiences, creative coding projects, and a growing body of work."
+version = "1.0.0"
+id = "artifacts/rana-portfolio"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18191
+
+[services.development]
+run = "pnpm --filter @workspace/rana-portfolio run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/rana-portfolio", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/rana-portfolio/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18191"
+BASE_PATH = "/"
