@@ -81,8 +81,8 @@ const skills = [
   { name: 'UI / UX Design', score: 85 },
   { name: 'API Integration', score: 78 },
   { name: 'Responsive Design', score: 88 },
-  { name: 'React', score: 4 },
-  { name: 'Java', score: 11 },
+  { name: 'React', score: 27 },
+  { name: 'Java', score: 30 },
 ];
 
 const navItems = [
