@@ -29,7 +29,7 @@ const projects: Project[] = [
     type: 'Interactive web experience',
     description: 'A retro desktop OS portfolio with a boot sequence, draggable windows, terminal, themes, sound, and a working contact form.',
     stack: ['HTML5', 'CSS3', 'JavaScript', 'Canvas API'],
-    href: '#contact',
+    href: 'https://github.com/rana-abhay1/portfolio.sys',
     live: true,
   },
   {
@@ -49,7 +49,7 @@ const projects: Project[] = [
     type: 'Website rework',
     description: 'A reworked website with a sharper visual system, modern design language, and smooth interactions throughout.',
     stack: ['JavaScript', 'Web Design'],
-    href: '#contact',
+    href: 'https://github.com/rana-abhay1/geloof-solution-private-limited',
     live: false,
   },
   {
@@ -59,7 +59,7 @@ const projects: Project[] = [
     type: 'Creative utility',
     description: 'A focused text-to-speech converter built with Python and local audio playback for quick, useful output.',
     stack: ['Python', 'Audio'],
-    href: '#contact',
+    href: 'https://github.com/rana-abhay1/Python-tts-converter',
     live: false,
   },
   {
@@ -69,7 +69,7 @@ const projects: Project[] = [
     type: 'API + voice interface',
     description: 'Live weather data becomes a spoken, listenable forecast through API integration and text-to-speech.',
     stack: ['Weather API', 'Text-to-speech'],
-    href: '#contact',
+    href: 'https://github.com/rana-abhay1/weather-podcast-using-api-in-python',
     live: false,
   },
 ];
@@ -241,6 +241,9 @@ function Home() {
             <a
               className={`project-card reveal delay-${Math.min(index + 1, 3)}`}
               href={project.href}
+              target={project.href.startsWith('http') ? '_blank' : undefined}
+              rel={project.href.startsWith('http') ? 'noreferrer' : undefined}
+              aria-label={`${project.title}${project.href.startsWith('http') ? ' repository on GitHub' : ''}`}
               key={project.id}
               data-testid={`link-project-${project.id}`}
             >
