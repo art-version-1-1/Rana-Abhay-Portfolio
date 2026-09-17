@@ -104,14 +104,18 @@ function Home() {
   const trailRefs = useRef<(HTMLDivElement | null)[]>([]);
   const positionsRef = useRef<{ x: number; y: number; t: number }[]>([]);
   const rafRef = useRef(0);
+  const visitRecordedRef = useRef(false);
   const recordVisit = useRecordVisit();
 
   useEffect(() => {
+    if (visitRecordedRef.current) return;
+    visitRecordedRef.current = true;
+
     recordVisit.mutate(undefined, {
       onSuccess: (data) => setVisitCount(data.totalVisits),
-      onError: () => setVisitCount(0),
+      onError: () => setVisitCount(null),
     });
-  }, [recordVisit]);
+  }, []);
 
   useEffect(() => {
     const sections = navItems

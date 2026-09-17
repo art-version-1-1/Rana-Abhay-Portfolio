@@ -8,7 +8,7 @@ import { resolveApiBaseUrl } from './lib/runtime-config';
 import './index.css';
 
 const apiBaseUrl = resolveApiBaseUrl(
-  import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? 'http://localhost:5000' : undefined),
+  import.meta.env.VITE_API_BASE_URL,
 );
 
 if (apiBaseUrl) {

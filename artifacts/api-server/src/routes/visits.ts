@@ -5,7 +5,7 @@ import { RecordVisitResponse } from "@workspace/api-zod";
 
 const router: IRouter = Router();
 
-router.post("/visits", async (_req, res): Promise<void> => {
+router.post("/visits", async (req, res): Promise<void> => {
   try {
     const [stats] = await db
       .insert(visitStatsTable)
@@ -21,8 +21,8 @@ router.post("/visits", async (_req, res): Promise<void> => {
 
     res.json(RecordVisitResponse.parse(stats ?? { totalVisits: 0 }));
   } catch (error) {
-    console.error("Visit counter failed", error);
-    res.status(200).json({ totalVisits: 0 });
+    req.log.error({ err: error }, "Visit counter failed");
+    res.status(500).json({ error: "Unable to record visit" });
   }
 });
 
